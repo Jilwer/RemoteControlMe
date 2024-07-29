@@ -20,7 +20,7 @@ const (
 	Jump        = "jump"
 	LookLeft    = "look-left"
 	LookRight   = "look-right"
-	Port        = "8080"
+	Port        = "80"
 )
 
 func main() {
@@ -69,6 +69,16 @@ func main() {
 		osc.Move(vrcinput.MoveLeft, true)
 		time.Sleep(1 * time.Second)
 		osc.Move(vrcinput.MoveLeft, false)
+
+		return 1, nil
+	})
+
+	// Move right event.
+	h.HandleEvent(MoveRight, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
+
+		osc.Move(vrcinput.MoveRight, true)
+		time.Sleep(1 * time.Second)
+		osc.Move(vrcinput.MoveRight, false)
 
 		return 1, nil
 	})
