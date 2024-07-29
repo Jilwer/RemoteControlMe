@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{ template "title" . }}</title>
+        <!-- Bootstrap CSS -->
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body {
+                font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
+                border-top: 5px solid red;
+                margin: 0;
+                padding: 1rem;
+            }
+            body.live-connected {
+                border-top: none;
+            }
+        </style>
+    </head>
+    <body>
+        {{ template "view" . }}
+        <!-- This is embedded in the binary and enables live to work -->
+        <script type="text/javascript" src="/live.js"></script>
+        <!-- Bootstrap JS and dependencies -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </body>
+</html>

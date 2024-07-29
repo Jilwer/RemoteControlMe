@@ -1,0 +1,48 @@
+{{ define "title" }}Gamepad{{ end }} 
+{{ define "view" }}
+<style>
+    .gamepad {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 1.5rem;
+    }
+    .gamepad-row {
+        display: flex;
+        justify-content: center;
+        margin: 0.5rem 0;
+    }
+    .gamepad button {
+        margin: 0.25rem;
+    }
+</style>
+<div class="gamepad">
+    <div class="gamepad-row">
+        <button class="btn btn-primary" live-window-keyup="look-left" live-key="A" live-click="look-left">
+            Look Left
+        </button>
+        <button class="btn btn-primary" live-window-keyup="jump" live-key="Space" live-click="jump">
+            Jump
+        </button>
+        <button class="btn btn-primary" live-window-keyup="look-right" live-key="D" live-click="look-right">
+            Look Right
+        </button>
+    </div>
+    <div class="gamepad-row">
+        <button class="btn btn-primary" live-window-keyup="up" live-key="ArrowUp" live-click="up">
+            Up
+        </button>
+    </div>
+    <div class="gamepad-row">
+        <button class="btn btn-primary" live-window-keyup="left" live-key="ArrowLeft" live-click="left">
+            Left
+        </button>
+        <button class="btn btn-primary" live-window-keyup="down" live-key="ArrowDown" live-click="down">
+            Down
+        </button>
+        <button class="btn btn-primary" live-window-keyup="right" live-key="ArrowRight" live-click="right">
+            Right
+        </button>
+    </div>
+</div>
+{{ end }}
