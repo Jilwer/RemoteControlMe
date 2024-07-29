@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -19,6 +20,7 @@ const (
 	Jump        = "jump"
 	LookLeft    = "look-left"
 	LookRight   = "look-right"
+	Port        = "8080"
 )
 
 func main() {
@@ -71,16 +73,6 @@ func main() {
 		return 1, nil
 	})
 
-	// Move right event.
-	h.HandleEvent(MoveRight, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
-
-		osc.Move(vrcinput.MoveRight, true)
-		time.Sleep(1 * time.Second)
-		osc.Move(vrcinput.MoveRight, false)
-
-		return 1, nil
-	})
-
 	// Look left event.
 	h.HandleEvent(LookLeft, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
 
@@ -102,8 +94,17 @@ func main() {
 	})
 
 	// Run the server.
-	http.Handle("/", live.NewHttpHandler(live.NewCookieStore("session-name", []byte("weak-secret")), h))
-	http.Handle("/live.js", live.Javascript{})
-	http.Handle("/auto.js.map", live.JavascriptMap{})
-	http.ListenAndServe(":8080", nil)
+	go func() {
+		http.Handle("/", live.NewHttpHandler(live.NewCookieStore("session-name", []byte("weak-secret")), h))
+		http.Handle("/live.js", live.Javascript{})
+		http.Handle("/auto.js.map", live.JavascriptMap{})
+		err = http.ListenAndServe(":"+Port, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	fmt.Println("Server is running on http://localhost:" + Port)
+	select {}
+
 }
