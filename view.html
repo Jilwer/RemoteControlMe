@@ -16,7 +16,9 @@
         margin: 0.25rem;
     }
 </style>
+
 <div class="gamepad">
+    <h1 class="text-center">Remote Control Me</h1>
     <div class="gamepad-row">
         <button class="btn btn-primary" live-window-keyup="look-left" live-key="A" live-click="look-left">
             Look Left
@@ -44,5 +46,34 @@
             Right
         </button>
     </div>
+    <div class="chat-input">
+        <form id="chatinput" live-submit="send" live-hook="chat" class="form-inline">
+            <div class="form-group mb-2">
+                <input autocomplete="off" autofocus type="text" name="message" maxlength="143" class="form-control mr-2" placeholder="Type your message..." oninput="updateCounter(this)">
+                <small id="charCount" class="form-text text-muted">0/143</small>
+            </div>
+            <button type="submit" class="btn btn-success mb-2">Send</button>
+        </form>
+    </div>
 </div>
+
+<script>
+    function updateCounter(input) {
+        const maxLength = input.getAttribute('maxlength');
+        const currentLength = input.value.length;
+        document.getElementById('charCount').innerText = `${currentLength}/${maxLength}`;
+    }
+
+    window.Hooks = {
+        "chat": {
+            mounted: function() {
+                this.el.addEventListener("submit", () => {
+                    this.el.querySelector("input").value = "";
+                    updateCounter(this.el.querySelector("input"));
+                });
+            }
+        }
+    }
+</script>
+
 {{ end }}

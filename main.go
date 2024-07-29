@@ -22,6 +22,7 @@ const (
 	LookRight   = "look-right"
 	Port        = "8080"
 	Domain      = "remote.ubel.org"
+	Send        = "send"
 )
 
 func main() {
@@ -30,7 +31,7 @@ func main() {
 	go func() {
 		for {
 			osc.Chat("Control me at: "+Domain, true, false)
-			time.Sleep(5 * time.Second)
+			time.Sleep(10 * time.Second)
 		}
 	}()
 
@@ -42,6 +43,22 @@ func main() {
 	h := live.NewHandler(live.WithTemplateRenderer(t))
 
 	// Client side events.
+
+	// Handle user sending a message.
+	h.HandleEvent(Send, func(ctx context.Context, s live.Socket, p live.Params) (interface{}, error) {
+		msg := p.String("message")
+		if msg == "" {
+			return 1, nil
+		}
+
+		if len(msg) > 143 {
+			msg = msg[:143]
+		}
+
+		osc.Chat(msg, true, false)
+
+		return 1, nil
+	})
 
 	// Jump event.
 	h.HandleEvent(Jump, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
