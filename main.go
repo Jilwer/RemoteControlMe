@@ -20,7 +20,7 @@ const (
 	Jump        = "jump"
 	LookLeft    = "look-left"
 	LookRight   = "look-right"
-	Port        = "80"
+	Port        = "43389"
 )
 
 func main() {
