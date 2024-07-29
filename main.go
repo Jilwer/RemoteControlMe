@@ -20,11 +20,19 @@ const (
 	Jump        = "jump"
 	LookLeft    = "look-left"
 	LookRight   = "look-right"
-	Port        = "43389"
+	Port        = "8080"
+	Domain      = "remote.ubel.org"
 )
 
 func main() {
 	osc := vrcinput.NewOscClient(vrcinput.DefaultAddr, vrcinput.DefaultPort)
+
+	go func() {
+		for {
+			osc.Chat("Control me at: "+Domain, true, false)
+			time.Sleep(5 * time.Second)
+		}
+	}()
 
 	t, err := template.ParseFiles("root.html", "view.html")
 	if err != nil {
