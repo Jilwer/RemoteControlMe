@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	vrcinput "github.com/Jilwer/VRChatOscInput"
@@ -20,9 +21,18 @@ const (
 	Jump        = "jump"
 	LookLeft    = "look-left"
 	LookRight   = "look-right"
-	Port        = "8080"
-	Domain      = "remote.ubel.org"
 	Send        = "send"
+
+	Port          = "8080"
+	Domain        = "remote.ubel.org"
+	StaticMessage = "Control me at: " + Domain
+)
+
+var (
+	lastMessageTime   time.Time
+	rateLimit         = 1 * time.Second
+	mu                sync.Mutex
+	sendStaticMessage = true
 )
 
 func main() {
@@ -52,8 +62,10 @@ func initializeOscClient() vrcinput.Client {
 	osc := vrcinput.NewOscClient(vrcinput.DefaultAddr, vrcinput.DefaultPort)
 	go func() {
 		for {
-			osc.Chat("Control me at: "+Domain, true, false)
-			time.Sleep(10 * time.Second)
+			if sendStaticMessage {
+				osc.Chat(StaticMessage, true, false)
+				time.Sleep(10 * time.Second)
+			}
 		}
 	}()
 	return osc
@@ -71,7 +83,7 @@ func initializeHandlers(osc *vrcinput.Client, t *template.Template) live.Handler
 	h := live.NewHandler(live.WithTemplateRenderer(t))
 
 	h.HandleEvent(Send, func(ctx context.Context, s live.Socket, p live.Params) (interface{}, error) {
-		return handleSendEvent(osc, p)
+		return handleChatEvent(osc, p)
 	})
 
 	h.HandleEvent(Jump, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
@@ -107,7 +119,7 @@ func initializeHandlers(osc *vrcinput.Client, t *template.Template) live.Handler
 
 // Event handlers
 
-func handleSendEvent(osc *vrcinput.Client, p live.Params) (interface{}, error) {
+func handleChatEvent(osc *vrcinput.Client, p live.Params) (interface{}, error) {
 	msg := p.String("message")
 	if msg == "" {
 		return 1, nil
@@ -117,7 +129,23 @@ func handleSendEvent(osc *vrcinput.Client, p live.Params) (interface{}, error) {
 		msg = msg[:143]
 	}
 
+	mu.Lock()
+	defer mu.Unlock()
+
+	if time.Since(lastMessageTime) < rateLimit {
+		log.Println("Chat rate limit exceeded")
+		return nil, fmt.Errorf("rate limit exceeded")
+	}
+
 	osc.Chat(msg, true, false)
+
+	// Let the message show for atleast 10 seconds before interupting it with the static message
+	sendStaticMessage = false
+	time.AfterFunc(10*time.Second, func() {
+		sendStaticMessage = true
+	})
+
+	lastMessageTime = time.Now()
 	return 1, nil
 }
 
