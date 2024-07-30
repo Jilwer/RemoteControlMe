@@ -36,6 +36,18 @@ func main() {
 	select {}
 }
 
+func runServer(h live.Handler) {
+	http.Handle("/", live.NewHttpHandler(live.NewCookieStore("session-name", []byte("weak-secret")), h))
+	http.Handle("/live.js", live.Javascript{})
+	http.Handle("/auto.js.map", live.JavascriptMap{})
+	err := http.ListenAndServe(":"+Port, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// Initializers
+
 func initializeOscClient() vrcinput.Client {
 	osc := vrcinput.NewOscClient(vrcinput.DefaultAddr, vrcinput.DefaultPort)
 	go func() {
@@ -93,15 +105,7 @@ func initializeHandlers(osc *vrcinput.Client, t *template.Template) live.Handler
 	return h
 }
 
-func runServer(h live.Handler) {
-	http.Handle("/", live.NewHttpHandler(live.NewCookieStore("session-name", []byte("weak-secret")), h))
-	http.Handle("/live.js", live.Javascript{})
-	http.Handle("/auto.js.map", live.JavascriptMap{})
-	err := http.ListenAndServe(":"+Port, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+// Event handlers
 
 func handleSendEvent(osc *vrcinput.Client, p live.Params) (interface{}, error) {
 	msg := p.String("message")
