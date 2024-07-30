@@ -1,5 +1,7 @@
 github.com/Jilwer/VRChatOscInput v0.0.0-20240729025900-c72461bb5e91 h1:Z8Bq/gZw8fC8rvbCu0tZs9wDKnWf/petUNeH4d2jx9o=
 github.com/Jilwer/VRChatOscInput v0.0.0-20240729025900-c72461bb5e91/go.mod h1:2CLxsmRzcoa8u/ApK5MLhoBd2i6kVfHM48QQM94+Oc4=
+github.com/Jilwer/VRChatOscInput v0.0.0-20240730043907-2c43023d1a70 h1:9AjXx+9ldqhe9PK/Bx/FpOhiCzCZGpuZ+NWJsH/+vTM=
+github.com/Jilwer/VRChatOscInput v0.0.0-20240730043907-2c43023d1a70/go.mod h1:2CLxsmRzcoa8u/ApK5MLhoBd2i6kVfHM48QQM94+Oc4=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/gin-contrib/sse v0.1.0/go.mod h1:RHrZQHXnP2xjPF+u1gW/2HnVO7nvIa9PG3Gm+fLHvGI=

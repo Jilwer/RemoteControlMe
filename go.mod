@@ -3,7 +3,7 @@ module remotecontrolme
 go 1.22.5
 
 require (
-	github.com/Jilwer/VRChatOscInput v0.0.0-20240729025900-c72461bb5e91 // indirect
+	github.com/Jilwer/VRChatOscInput v0.0.0-20240730043907-2c43023d1a70 // indirect
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gorilla/sessions v1.2.1 // indirect

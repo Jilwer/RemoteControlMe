@@ -26,120 +26,112 @@ const (
 )
 
 func main() {
-	osc := vrcinput.NewOscClient(vrcinput.DefaultAddr, vrcinput.DefaultPort)
+	osc := initializeOscClient()
+	t := initializeTemplates()
+	h := initializeHandlers(&osc, t)
 
+	go runServer(h)
+
+	fmt.Println("Server is running on http://localhost:" + Port)
+	select {}
+}
+
+func initializeOscClient() vrcinput.Client {
+	osc := vrcinput.NewOscClient(vrcinput.DefaultAddr, vrcinput.DefaultPort)
 	go func() {
 		for {
 			osc.Chat("Control me at: "+Domain, true, false)
 			time.Sleep(10 * time.Second)
 		}
 	}()
+	return osc
+}
 
+func initializeTemplates() *template.Template {
 	t, err := template.ParseFiles("root.html", "view.html")
 	if err != nil {
 		log.Fatal(err)
 	}
+	return t
+}
 
+func initializeHandlers(osc *vrcinput.Client, t *template.Template) live.Handler {
 	h := live.NewHandler(live.WithTemplateRenderer(t))
 
-	// Client side events.
-
-	// Handle user sending a message.
 	h.HandleEvent(Send, func(ctx context.Context, s live.Socket, p live.Params) (interface{}, error) {
-		msg := p.String("message")
-		if msg == "" {
-			return 1, nil
-		}
-
-		if len(msg) > 143 {
-			msg = msg[:143]
-		}
-
-		osc.Chat(msg, true, false)
-
-		return 1, nil
+		return handleSendEvent(osc, p)
 	})
 
-	// Jump event.
 	h.HandleEvent(Jump, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
-
-		osc.Jump()
-
-		return 1, nil
+		return handleJumpEvent(osc)
 	})
 
-	// Move forward event.
 	h.HandleEvent(MoveForward, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
-
-		osc.Move(vrcinput.MoveForward, true)
-		time.Sleep(1 * time.Second)
-		osc.Move(vrcinput.MoveForward, false)
-
-		return 1, nil
+		return handleMoveEvent(osc, vrcinput.MoveForward)
 	})
 
-	// Move back event.
 	h.HandleEvent(MoveBack, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
-
-		osc.Move(vrcinput.MoveBackward, true)
-		time.Sleep(1 * time.Second)
-		osc.Move(vrcinput.MoveBackward, false)
-
-		return 1, nil
+		return handleMoveEvent(osc, vrcinput.MoveBackward)
 	})
 
-	// Move left event.
 	h.HandleEvent(MoveLeft, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
-
-		osc.Move(vrcinput.MoveLeft, true)
-		time.Sleep(1 * time.Second)
-		osc.Move(vrcinput.MoveLeft, false)
-
-		return 1, nil
+		return handleMoveEvent(osc, vrcinput.MoveLeft)
 	})
 
-	// Move right event.
 	h.HandleEvent(MoveRight, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
-
-		osc.Move(vrcinput.MoveRight, true)
-		time.Sleep(1 * time.Second)
-		osc.Move(vrcinput.MoveRight, false)
-
-		return 1, nil
+		return handleMoveEvent(osc, vrcinput.MoveRight)
 	})
 
-	// Look left event.
 	h.HandleEvent(LookLeft, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
-
-		osc.Look(vrcinput.LookLeft, true)
-		time.Sleep(250 * time.Millisecond)
-		osc.Look(vrcinput.LookLeft, false)
-
-		return 1, nil
+		return handleLookEvent(osc, vrcinput.LookLeft)
 	})
 
-	// Look right event.
 	h.HandleEvent(LookRight, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
-
-		osc.Look(vrcinput.LookRight, true)
-		time.Sleep(250 * time.Millisecond)
-		osc.Look(vrcinput.LookRight, false)
-
-		return 1, nil
+		return handleLookEvent(osc, vrcinput.LookRight)
 	})
 
-	// Run the server.
-	go func() {
-		http.Handle("/", live.NewHttpHandler(live.NewCookieStore("session-name", []byte("weak-secret")), h))
-		http.Handle("/live.js", live.Javascript{})
-		http.Handle("/auto.js.map", live.JavascriptMap{})
-		err = http.ListenAndServe(":"+Port, nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
+	return h
+}
 
-	fmt.Println("Server is running on http://localhost:" + Port)
-	select {}
+func runServer(h live.Handler) {
+	http.Handle("/", live.NewHttpHandler(live.NewCookieStore("session-name", []byte("weak-secret")), h))
+	http.Handle("/live.js", live.Javascript{})
+	http.Handle("/auto.js.map", live.JavascriptMap{})
+	err := http.ListenAndServe(":"+Port, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
+func handleSendEvent(osc *vrcinput.Client, p live.Params) (interface{}, error) {
+	msg := p.String("message")
+	if msg == "" {
+		return 1, nil
+	}
+
+	if len(msg) > 143 {
+		msg = msg[:143]
+	}
+
+	osc.Chat(msg, true, false)
+	return 1, nil
+}
+
+func handleJumpEvent(osc *vrcinput.Client) (interface{}, error) {
+	osc.Jump()
+	return 1, nil
+}
+
+func handleMoveEvent(osc *vrcinput.Client, direction vrcinput.MoveDirection) (interface{}, error) {
+	osc.Move(direction, true)
+	time.Sleep(1 * time.Second)
+	osc.Move(direction, false)
+	return 1, nil
+}
+
+func handleLookEvent(osc *vrcinput.Client, direction vrcinput.LookDirection) (interface{}, error) {
+	osc.Look(direction, true)
+	time.Sleep(250 * time.Millisecond)
+	osc.Look(direction, false)
+	return 1, nil
 }
