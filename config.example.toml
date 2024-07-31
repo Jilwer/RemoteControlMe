@@ -1,0 +1,9 @@
+# This is an example configuration file for the server
+# Rename this file to config.toml to use it
+
+# The address to bind the server to
+port = "8080"
+# Whether or not to enable chat
+chat_enabled = true
+# The message to statically display in your chatbox
+static_message = "Hello, World!"

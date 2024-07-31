@@ -28,10 +28,6 @@ const (
 	LookRight       = "look-right"
 	LookRightStop   = "look-right-stop"
 	Send            = "send"
-
-	Port          = "8080"
-	Domain        = "remote.ubel.org"
-	StaticMessage = "Control me at: " + Domain
 )
 
 var (
@@ -39,7 +35,16 @@ var (
 	rateLimit         = 1 * time.Second
 	mu                sync.Mutex
 	sendStaticMessage = true
+	UserConfig        *Config
 )
+
+func init() {
+	var err error
+	UserConfig, err = LoadConfig("config.toml")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func main() {
 	osc := initializeOscClient()
@@ -48,7 +53,7 @@ func main() {
 
 	go runServer(h)
 
-	fmt.Println("Server is running on http://localhost:" + Port)
+	fmt.Println("Server is running on http://localhost:" + UserConfig.Port)
 	select {}
 }
 
@@ -56,7 +61,7 @@ func runServer(h live.Handler) {
 	http.Handle("/", live.NewHttpHandler(live.NewCookieStore("session-name", []byte("weak-secret")), h))
 	http.Handle("/live.js", live.Javascript{})
 	http.Handle("/auto.js.map", live.JavascriptMap{})
-	err := http.ListenAndServe(":"+Port, nil)
+	err := http.ListenAndServe(":"+UserConfig.Port, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -69,7 +74,7 @@ func initializeOscClient() vrcinput.Client {
 	go func() {
 		for {
 			if sendStaticMessage {
-				osc.Chat(StaticMessage, true, false)
+				osc.Chat(UserConfig.StaticMessage, true, false)
 				time.Sleep(10 * time.Second)
 			}
 		}
@@ -152,6 +157,11 @@ func initializeHandlers(osc *vrcinput.Client, t *template.Template) live.Handler
 // Event handlers
 
 func handleChatEvent(osc *vrcinput.Client, p live.Params) (interface{}, error) {
+
+	if !UserConfig.ChatEnabled {
+		return 1, nil
+	}
+
 	msg := p.String("message")
 	if msg == "" {
 		return 1, nil
