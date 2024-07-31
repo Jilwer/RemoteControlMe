@@ -14,14 +14,20 @@ import (
 )
 
 const (
-	MoveForward = "up"
-	MoveBack    = "down"
-	MoveLeft    = "left"
-	MoveRight   = "right"
-	Jump        = "jump"
-	LookLeft    = "look-left"
-	LookRight   = "look-right"
-	Send        = "send"
+	Jump            = "jump"
+	MoveForward     = "up"
+	MoveForwardStop = "up-stop"
+	MoveBack        = "down"
+	MoveBackStop    = "down-stop"
+	MoveLeft        = "left"
+	MoveLeftStop    = "left-stop"
+	MoveRight       = "right"
+	MoveRightStop   = "right-stop"
+	LookLeft        = "look-left"
+	LookLeftStop    = "look-left-stop"
+	LookRight       = "look-right"
+	LookRightStop   = "look-right-stop"
+	Send            = "send"
 
 	Port          = "8080"
 	Domain        = "remote.ubel.org"
@@ -90,6 +96,7 @@ func initializeHandlers(osc *vrcinput.Client, t *template.Template) live.Handler
 		return handleJumpEvent(osc)
 	})
 
+	// Input Start Events
 	h.HandleEvent(MoveForward, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
 		return handleMoveEvent(osc, vrcinput.MoveForward)
 	})
@@ -112,6 +119,31 @@ func initializeHandlers(osc *vrcinput.Client, t *template.Template) live.Handler
 
 	h.HandleEvent(LookRight, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
 		return handleLookEvent(osc, vrcinput.LookRight)
+	})
+
+	// Input Stop Events
+	h.HandleEvent(MoveForwardStop, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
+		return handleStopMoveEvent(osc, vrcinput.MoveForward)
+	})
+
+	h.HandleEvent(MoveBackStop, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
+		return handleStopMoveEvent(osc, vrcinput.MoveBackward)
+	})
+
+	h.HandleEvent(MoveLeftStop, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
+		return handleStopMoveEvent(osc, vrcinput.MoveLeft)
+	})
+
+	h.HandleEvent(MoveRightStop, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
+		return handleStopMoveEvent(osc, vrcinput.MoveRight)
+	})
+
+	h.HandleEvent(LookLeftStop, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
+		return handleStopLookEvent(osc, vrcinput.LookLeft)
+	})
+
+	h.HandleEvent(LookRightStop, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
+		return handleStopLookEvent(osc, vrcinput.LookRight)
 	})
 
 	return h
@@ -156,14 +188,23 @@ func handleJumpEvent(osc *vrcinput.Client) (interface{}, error) {
 
 func handleMoveEvent(osc *vrcinput.Client, direction vrcinput.MoveDirection) (interface{}, error) {
 	osc.Move(direction, true)
-	time.Sleep(1 * time.Second)
+	// log.Println("Received move event: ", direction)
+	return 1, nil
+}
+
+func handleStopMoveEvent(osc *vrcinput.Client, direction vrcinput.MoveDirection) (interface{}, error) {
 	osc.Move(direction, false)
+	// log.Println("Received stop event: ", direction)
 	return 1, nil
 }
 
 func handleLookEvent(osc *vrcinput.Client, direction vrcinput.LookDirection) (interface{}, error) {
 	osc.Look(direction, true)
-	time.Sleep(250 * time.Millisecond)
+	return 1, nil
+}
+
+func handleStopLookEvent(osc *vrcinput.Client, direction vrcinput.LookDirection) (interface{}, error) {
+	log.Println("Received stop look event: ", direction)
 	osc.Look(direction, false)
 	return 1, nil
 }

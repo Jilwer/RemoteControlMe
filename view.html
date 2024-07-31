@@ -1,4 +1,4 @@
-{{ define "title" }}Gamepad{{ end }} 
+{{ define "title" }}Gamepad{{ end }}
 {{ define "view" }}
 <style>
     .gamepad {
@@ -7,11 +7,13 @@
         align-items: center;
         font-size: 1.5rem;
     }
+
     .gamepad-row {
         display: flex;
         justify-content: center;
         margin: 0.5rem 0;
     }
+
     .gamepad button {
         margin: 0.25rem;
     }
@@ -20,36 +22,50 @@
 <div class="gamepad">
     <h1 class="text-center">Remote Control Me</h1>
     <div class="gamepad-row">
-        <button class="btn btn-primary" live-window-keyup="look-left" live-key="A" live-click="look-left">
+        <button class="btn btn-primary" live-window-keyup="look-left" live-key="A" live-mousedown="look-left"
+            live-mouseup="look-left-stop" onmouseleave="this.dispatchEvent(new Event('mouseup'))">
             Look Left
         </button>
+
         <button class="btn btn-primary" live-window-keyup="jump" live-key="Space" live-click="jump">
             Jump
         </button>
-        <button class="btn btn-primary" live-window-keyup="look-right" live-key="D" live-click="look-right">
+
+        <button class="btn btn-primary" live-window-keyup="look-right" live-key="D" live-mousedown="look-right"
+            live-mouseup="look-right-stop" onmouseleave="this.dispatchEvent(new Event('mouseup'))">
             Look Right
         </button>
     </div>
+
     <div class="gamepad-row">
-        <button class="btn btn-primary" live-window-keyup="up" live-key="ArrowUp" live-click="up">
+        <button class="btn btn-primary" live-window-keyup="up" live-key="ArrowUp" live-mousedown="up"
+            live-mouseup="up-stop" onmouseleave="this.dispatchEvent(new Event('mouseup'))">
             Up
         </button>
     </div>
+
     <div class="gamepad-row">
-        <button class="btn btn-primary" live-window-keyup="left" live-key="ArrowLeft" live-click="left">
+        <button class="btn btn-primary" live-window-keyup="left" live-key="ArrowLeft" live-mousedown="left"
+            live-mouseup="left-stop" onmouseleave="this.dispatchEvent(new Event('mouseup'))">
             Left
         </button>
-        <button class="btn btn-primary" live-window-keyup="down" live-key="ArrowDown" live-click="down">
+
+        <button class="btn btn-primary" live-window-keyup="down" live-key="ArrowDown" live-mousedown="down"
+            live-mouseup="down-stop" onmouseleave="this.dispatchEvent(new Event('mouseup'))">
             Down
         </button>
-        <button class="btn btn-primary" live-window-keyup="right" live-key="ArrowRight" live-click="right">
+
+        <button class="btn btn-primary" live-window-keyup="right" live-key="ArrowRight" live-mousedown="right"
+            live-mouseup="right-stop" onmouseleave="this.dispatchEvent(new Event('mouseup'))">
             Right
         </button>
     </div>
+
     <div class="chat-input">
         <form id="chatinput" live-submit="send" live-hook="chat" class="form-inline">
             <div class="form-group mb-2">
-                <input autocomplete="off" autofocus type="text" name="message" maxlength="143" class="form-control mr-2" placeholder="Type your message..." oninput="updateCounter(this)">
+                <input autocomplete="off" autofocus type="text" name="message" maxlength="143" class="form-control mr-2"
+                    placeholder="Type your message..." oninput="updateCounter(this)">
                 <small id="charCount" class="form-text text-muted">0/143</small>
             </div>
             <button type="submit" class="btn btn-success mb-2">Send</button>
@@ -66,7 +82,7 @@
 
     window.Hooks = {
         "chat": {
-            mounted: function() {
+            mounted: function () {
                 this.el.addEventListener("submit", () => {
                     this.el.querySelector("input").value = "";
                     updateCounter(this.el.querySelector("input"));
