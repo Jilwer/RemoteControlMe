@@ -31,11 +31,12 @@ const (
 )
 
 var (
-	lastMessageTime   time.Time
-	rateLimit         = 1 * time.Second
-	mu                sync.Mutex
-	sendStaticMessage = true
-	UserConfig        *Config
+	lastMessageTime        time.Time
+	rateLimit              = 1 * time.Second
+	mu                     sync.Mutex
+	sendStaticMessage      = true
+	sendStaticMessageTimer = time.NewTicker(10 * time.Second)
+	UserConfig             *Config
 )
 
 func init() {
@@ -69,10 +70,6 @@ func runServer(h live.Handler) {
 
 // Initializers
 
-// create a global sendStaticMessage timer
-
-var sendStaticMessageTimer = time.NewTicker(10 * time.Second)
-
 func initializeOscClient() vrcinput.Client {
 	osc := vrcinput.NewOscClient(vrcinput.DefaultAddr, vrcinput.DefaultPort)
 	go func() {
@@ -84,6 +81,7 @@ func initializeOscClient() vrcinput.Client {
 	}()
 	return osc
 }
+
 func initializeTemplates() *template.Template {
 	t, err := template.ParseFiles("root.html", "view.html")
 	if err != nil {
@@ -212,7 +210,7 @@ func handleLookEvent(osc *vrcinput.Client, direction vrcinput.LookDirection) (in
 }
 
 func handleStopLookEvent(osc *vrcinput.Client, direction vrcinput.LookDirection) (interface{}, error) {
-	//log.Println("Received stop look event: ", direction)
+	// log.Println("Received stop look event: ", direction)
 	osc.Look(direction, false)
 	return 1, nil
 }
