@@ -69,19 +69,21 @@ func runServer(h live.Handler) {
 
 // Initializers
 
+// create a global sendStaticMessage timer
+
+var sendStaticMessageTimer = time.NewTicker(10 * time.Second)
+
 func initializeOscClient() vrcinput.Client {
 	osc := vrcinput.NewOscClient(vrcinput.DefaultAddr, vrcinput.DefaultPort)
 	go func() {
-		for {
+		for range sendStaticMessageTimer.C {
 			if sendStaticMessage {
 				osc.Chat(UserConfig.StaticMessage, true, false)
-				time.Sleep(10 * time.Second)
 			}
 		}
 	}()
 	return osc
 }
-
 func initializeTemplates() *template.Template {
 	t, err := template.ParseFiles("root.html", "view.html")
 	if err != nil {
@@ -181,11 +183,7 @@ func handleChatEvent(osc *vrcinput.Client, p live.Params) (interface{}, error) {
 
 	osc.Chat(msg, true, false)
 
-	// Let the message show for atleast 10 seconds before interupting it with the static message
-	sendStaticMessage = false
-	time.AfterFunc(10*time.Second, func() {
-		sendStaticMessage = true
-	})
+	sendStaticMessageTimer.Reset(10 * time.Second)
 
 	lastMessageTime = time.Now()
 	return 1, nil
@@ -214,7 +212,7 @@ func handleLookEvent(osc *vrcinput.Client, direction vrcinput.LookDirection) (in
 }
 
 func handleStopLookEvent(osc *vrcinput.Client, direction vrcinput.LookDirection) (interface{}, error) {
-	log.Println("Received stop look event: ", direction)
+	//log.Println("Received stop look event: ", direction)
 	osc.Look(direction, false)
 	return 1, nil
 }
