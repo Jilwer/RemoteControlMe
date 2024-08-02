@@ -51,6 +51,7 @@ func main() {
 	osc := initializeOscClient()
 	t := initializeTemplates()
 	h := initializeHandlers(&osc, t)
+	go initializeStaticMessageSender(&osc)
 
 	go runServer(h)
 
@@ -72,14 +73,15 @@ func runServer(h live.Handler) {
 
 func initializeOscClient() vrcinput.Client {
 	osc := vrcinput.NewOscClient(vrcinput.DefaultAddr, vrcinput.DefaultPort)
-	go func() {
-		for range sendStaticMessageTimer.C {
-			if sendStaticMessage {
-				osc.Chat(UserConfig.StaticMessage, true, false)
-			}
-		}
-	}()
 	return osc
+}
+
+func initializeStaticMessageSender(osc *vrcinput.Client) {
+	for range sendStaticMessageTimer.C {
+		if sendStaticMessage {
+			osc.Chat(UserConfig.StaticMessage, true, false)
+		}
+	}
 }
 
 func initializeTemplates() *template.Template {
