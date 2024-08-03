@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
+	"time"
 
 	"github.com/pelletier/go-toml/v2"
 )
@@ -58,4 +60,21 @@ type UserDefinedConfig struct {
 	Port          string `toml:"port"`
 	StaticMessage string `toml:"static_message"`
 	ChatEnabled   bool   `toml:"chat_enabled"`
+}
+
+type StaticMessage struct {
+	Send  bool
+	Timer *time.Ticker
+}
+
+type ChatEvent struct {
+	LastMessageTime time.Time
+	RateLimit       time.Duration
+	Mutex           *sync.Mutex
+}
+
+type StateConfig struct {
+	StaticMessage *StaticMessage
+	ChatEvent     *ChatEvent
+	UserDefined   *UserDefinedConfig
 }

@@ -30,22 +30,7 @@ const (
 	Send            = "send"
 )
 
-type StaticMessage struct {
-	Send  bool
-	Timer *time.Ticker
-}
 
-type ChatEvent struct {
-	LastMessageTime time.Time
-	RateLimit       time.Duration
-	Mutex           *sync.Mutex
-}
-
-type StateConfig struct {
-	StaticMessage *StaticMessage
-	ChatEvent     *ChatEvent
-	UserDefined   *UserDefinedConfig
-}
 
 func main() {
 
