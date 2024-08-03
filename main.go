@@ -30,8 +30,6 @@ const (
 	Send            = "send"
 )
 
-
-
 func main() {
 
 	initialState := StateConfig{
