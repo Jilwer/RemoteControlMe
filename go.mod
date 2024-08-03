@@ -9,6 +9,7 @@ require (
 )
 
 require (
+	github.com/Jilwer/oscvrc v0.0.0-20240803220147-9921c588bc6c // indirect
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gorilla/sessions v1.2.1 // indirect

@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	vrcinput "github.com/Jilwer/VRChatOscInput"
+	vrcinput "github.com/Jilwer/oscvrc"
 	"github.com/jfyne/live"
 )
 
