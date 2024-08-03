@@ -30,14 +30,23 @@ const (
 	Send            = "send"
 )
 
-var (
-	lastMessageTime        time.Time
-	rateLimit              = 1 * time.Second
-	mu                     sync.Mutex
-	sendStaticMessage      = true
-	sendStaticMessageTimer = time.NewTicker(10 * time.Second)
-	UserConfig             *Config
-)
+var UserConfig *Config
+
+type StaticMessage struct {
+	Send  bool
+	Timer *time.Ticker
+}
+
+type ChatEvent struct {
+	LastMessageTime time.Time
+	RateLimit       time.Duration
+	Mutex           *sync.Mutex
+}
+
+type StateConfig struct {
+	StaticMessage *StaticMessage
+	ChatEvent     *ChatEvent
+}
 
 func init() {
 	var err error
@@ -50,8 +59,21 @@ func init() {
 func main() {
 	osc := initializeOscClient()
 	t := initializeTemplates()
-	h := initializeHandlers(&osc, t)
-	go initializeStaticMessageSender(&osc)
+
+	initialState := StateConfig{
+		StaticMessage: &StaticMessage{
+			Send:  true,
+			Timer: time.NewTicker(10 * time.Second),
+		},
+		ChatEvent: &ChatEvent{
+			LastMessageTime: time.Now().Add(-10 * time.Second), // Set to 10 seconds ago to allow first message
+			RateLimit:       1 * time.Second,
+			Mutex:           &sync.Mutex{},
+		},
+	}
+	
+	h := initializeHandlers(&osc, t, &initialState)
+	initializeStaticMessageSender(&osc, &initialState)
 
 	go runServer(h)
 
@@ -76,12 +98,14 @@ func initializeOscClient() vrcinput.Client {
 	return osc
 }
 
-func initializeStaticMessageSender(osc *vrcinput.Client) {
-	for range sendStaticMessageTimer.C {
-		if sendStaticMessage {
-			osc.Chat(UserConfig.StaticMessage, true, false)
+func initializeStaticMessageSender(osc *vrcinput.Client, config *StateConfig) {
+	go func() {
+		for range config.StaticMessage.Timer.C {
+			if config.StaticMessage.Send {
+				osc.Chat(UserConfig.StaticMessage, true, false)
+			}
 		}
-	}
+	}()
 }
 
 func initializeTemplates() *template.Template {
@@ -92,11 +116,11 @@ func initializeTemplates() *template.Template {
 	return t
 }
 
-func initializeHandlers(osc *vrcinput.Client, t *template.Template) live.Handler {
+func initializeHandlers(osc *vrcinput.Client, t *template.Template, state *StateConfig) live.Handler {
 	h := live.NewHandler(live.WithTemplateRenderer(t))
 
 	h.HandleEvent(Send, func(ctx context.Context, s live.Socket, p live.Params) (interface{}, error) {
-		return handleChatEvent(osc, p)
+		return handleChatEvent(osc, p, state)
 	})
 
 	h.HandleEvent(Jump, func(ctx context.Context, s live.Socket, _ live.Params) (interface{}, error) {
@@ -158,7 +182,7 @@ func initializeHandlers(osc *vrcinput.Client, t *template.Template) live.Handler
 
 // Event handlers
 
-func handleChatEvent(osc *vrcinput.Client, p live.Params) (interface{}, error) {
+func handleChatEvent(osc *vrcinput.Client, p live.Params, config *StateConfig) (interface{}, error) {
 
 	if !UserConfig.ChatEnabled {
 		return 1, nil
@@ -173,19 +197,19 @@ func handleChatEvent(osc *vrcinput.Client, p live.Params) (interface{}, error) {
 		msg = msg[:143]
 	}
 
-	mu.Lock()
-	defer mu.Unlock()
+	config.ChatEvent.Mutex.Lock()
+	defer config.ChatEvent.Mutex.Unlock()
 
-	if time.Since(lastMessageTime) < rateLimit {
+	if time.Since(config.ChatEvent.LastMessageTime) < config.ChatEvent.RateLimit {
 		log.Println("Chat rate limit exceeded")
 		return nil, fmt.Errorf("rate limit exceeded")
 	}
 
 	osc.Chat(msg, true, false)
 
-	sendStaticMessageTimer.Reset(10 * time.Second)
+	config.StaticMessage.Timer.Reset(10 * time.Second)
 
-	lastMessageTime = time.Now()
+	config.ChatEvent.LastMessageTime = time.Now()
 	return 1, nil
 }
 
