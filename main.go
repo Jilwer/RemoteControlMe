@@ -30,8 +30,6 @@ const (
 	Send            = "send"
 )
 
-var UserConfig *Config
-
 type StaticMessage struct {
 	Send  bool
 	Timer *time.Ticker
@@ -46,19 +44,10 @@ type ChatEvent struct {
 type StateConfig struct {
 	StaticMessage *StaticMessage
 	ChatEvent     *ChatEvent
-}
-
-func init() {
-	var err error
-	UserConfig, err = LoadConfig("config.toml")
-	if err != nil {
-		log.Fatal(err)
-	}
+	UserDefined   *UserDefinedConfig
 }
 
 func main() {
-	osc := initializeOscClient()
-	t := initializeTemplates()
 
 	initialState := StateConfig{
 		StaticMessage: &StaticMessage{
@@ -70,22 +59,25 @@ func main() {
 			RateLimit:       1 * time.Second,
 			Mutex:           &sync.Mutex{},
 		},
+		UserDefined: MustLoadConfig("config.toml"),
 	}
-	
+
+	osc := initializeOscClient()
+	t := initializeTemplates()
 	h := initializeHandlers(&osc, t, &initialState)
 	initializeStaticMessageSender(&osc, &initialState)
 
-	go runServer(h)
+	go runServer(h, &initialState)
 
-	fmt.Println("Server is running on http://localhost:" + UserConfig.Port)
+	fmt.Println("Server is running on http://localhost:" + initialState.UserDefined.Port)
 	select {}
 }
 
-func runServer(h live.Handler) {
+func runServer(h live.Handler, config *StateConfig) {
 	http.Handle("/", live.NewHttpHandler(live.NewCookieStore("session-name", []byte("weak-secret")), h))
 	http.Handle("/live.js", live.Javascript{})
 	http.Handle("/auto.js.map", live.JavascriptMap{})
-	err := http.ListenAndServe(":"+UserConfig.Port, nil)
+	err := http.ListenAndServe(":"+config.UserDefined.Port, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -102,7 +94,7 @@ func initializeStaticMessageSender(osc *vrcinput.Client, config *StateConfig) {
 	go func() {
 		for range config.StaticMessage.Timer.C {
 			if config.StaticMessage.Send {
-				osc.Chat(UserConfig.StaticMessage, true, false)
+				osc.Chat(config.UserDefined.StaticMessage, true, false)
 			}
 		}
 	}()
@@ -184,7 +176,7 @@ func initializeHandlers(osc *vrcinput.Client, t *template.Template, state *State
 
 func handleChatEvent(osc *vrcinput.Client, p live.Params, config *StateConfig) (interface{}, error) {
 
-	if !UserConfig.ChatEnabled {
+	if !config.UserDefined.ChatEnabled {
 		return 1, nil
 	}
 

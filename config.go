@@ -8,7 +8,7 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
-func LoadConfig(path string) (*Config, error) {
+func LoadConfig(path string) (*UserDefinedConfig, error) {
 
 	// check if the file exists, if it doesn't create a new one and exit with a message
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -20,7 +20,7 @@ func LoadConfig(path string) (*Config, error) {
 		defer file.Close()
 
 		// create a new config with default values
-		cfg := Config{
+		cfg := UserDefinedConfig{
 			Port:          "8080",
 			StaticMessage: "Hello, World!",
 			ChatEnabled:   true,
@@ -39,14 +39,22 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, fmt.Errorf("failed to open config: %w", err)
 	}
 
-	var cfg Config
+	var cfg UserDefinedConfig
 	if err = toml.NewDecoder(file).Decode(&cfg); err != nil {
 		return nil, err
 	}
 	return &cfg, nil
 }
 
-type Config struct {
+func MustLoadConfig(path string) *UserDefinedConfig {
+	cfg, err := LoadConfig(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return cfg
+}
+
+type UserDefinedConfig struct {
 	Port          string `toml:"port"`
 	StaticMessage string `toml:"static_message"`
 	ChatEnabled   bool   `toml:"chat_enabled"`
