@@ -22,17 +22,18 @@
 <div class="gamepad">
     <h1 class="text-center">Remote Control Me</h1>
     <div class="gamepad-row">
-        <button class="btn btn-primary" live-mousedown="look-left" live-mouseup="look-left-stop"
-            onmousedown="mouseDown = true" onmouseup="mouseDown = false"
-            onmouseleave="if (mouseDown) this.dispatchEvent(new Event('mouseup'))">
+        <button class="btn btn-primary" live-mousedown="look-left" live-mouseup="look-left-stop" live-key=","
+            live-window-keydown="look-left" live-window-keyup="look-left-stop" onmousedown="mouseDown = true"
+            onmouseup="mouseDown = false" onmouseleave="if (mouseDown) this.dispatchEvent(new Event('mouseup'))">
             Look Left
         </button>
 
-        <button class="btn btn-primary" live-click="jump">
+        <button class="btn btn-primary" live-click="jump" live-key=" " live-window-keydown="jump">
             Jump
         </button>
 
-        <button class="btn btn-primary" live-mousedown="look-right" live-mouseup="look-right-stop"
+        <button class="btn btn-primary" live-mousedown="look-right" live-mouseup="look-right-stop" live-key="."
+        live-window-keydown="look-right" live-window-keyup="look-right-stop"
             onmousedown="mouseDown = true" onmouseup="mouseDown = false"
             onmouseleave="if (mouseDown) this.dispatchEvent(new Event('mouseup'))">
             Look Right
@@ -40,24 +41,28 @@
     </div>
 
     <div class="gamepad-row">
-        <button class="btn btn-primary" live-mousedown="up" live-mouseup="up-stop" onmousedown="mouseDown = true"
+        <button class="btn btn-primary" live-mousedown="up" live-mouseup="up-stop" live-key="ArrowUp"
+            live-window-keydown="up" live-window-keyup="up-stop" onmousedown="mouseDown = true"
             onmouseup="mouseDown = false" onmouseleave="if (mouseDown) this.dispatchEvent(new Event('mouseup'))">
             Up
         </button>
     </div>
 
     <div class="gamepad-row">
-        <button class="btn btn-primary" live-mousedown="left" live-mouseup="left-stop" onmousedown="mouseDown = true"
+        <button class="btn btn-primary" live-mousedown="left" live-mouseup="left-stop" live-key="ArrowLeft"
+            live-window-keydown="left" live-window-keyup="left-stop" onmousedown="mouseDown = true"
             onmouseup="mouseDown = false" onmouseleave="if (mouseDown) this.dispatchEvent(new Event('mouseup'))">
             Left
         </button>
 
-        <button class="btn btn-primary" live-mousedown="down" live-mouseup="down-stop" onmousedown="mouseDown = true"
+        <button class="btn btn-primary" live-mousedown="down" live-mouseup="down-stop" live-key="ArrowDown"
+            live-window-keydown="down" live-window-keyup="down-stop" onmousedown="mouseDown = true"
             onmouseup="mouseDown = false" onmouseleave="if (mouseDown) this.dispatchEvent(new Event('mouseup'))">
             Down
         </button>
 
-        <button class="btn btn-primary" live-mousedown="right" live-mouseup="right-stop" onmousedown="mouseDown = true"
+        <button class="btn btn-primary" live-mousedown="right" live-mouseup="right-stop" live-key="ArrowRight"
+            live-window-keydown="right" live-window-keyup="right-stop" onmousedown="mouseDown = true"
             onmouseup="mouseDown = false" onmouseleave="if (mouseDown) this.dispatchEvent(new Event('mouseup'))">
             Right
         </button>
@@ -67,7 +72,7 @@
         <form id="chatinput" live-submit="send" live-hook="chat" class="form-inline">
             <div class="form-group mb-2">
                 <input autocomplete="off" autofocus type="text" name="message" maxlength="143" class="form-control mr-2"
-                    placeholder="Type your message..." oninput="updateCounter(this)">
+                    placeholder="Type your message..." oninput="updateCounter(this)" onfocus="ignoreKeypresses()" onblur="resumeKeypresses()">
                 <small id="charCount" class="form-text text-muted">0/143</small>
             </div>
             <button type="submit" class="btn btn-success mb-2">Send</button>
@@ -82,6 +87,21 @@
         const maxLength = input.getAttribute('maxlength');
         const currentLength = input.value.length;
         document.getElementById('charCount').innerText = `${currentLength}/${maxLength}`;
+    }
+
+
+    function ignoreKeypresses() {
+        window.addEventListener('keydown', stopPropagation, true);
+        window.addEventListener('keyup', stopPropagation, true);
+    }
+
+    function resumeKeypresses() {
+        window.removeEventListener('keydown', stopPropagation, true);
+        window.removeEventListener('keyup', stopPropagation, true);
+    }
+
+    function stopPropagation(event) {
+        event.stopPropagation();
     }
 
     window.Hooks = {
