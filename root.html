@@ -10,13 +10,14 @@
                 border-top: 5px solid red;
                 margin: 0;
                 padding: 1rem;
+                color: white;
             }
             body.live-connected {
                 border-top: none;
             }
         </style>
     </head>
-    <body>
+    <body class="bg-dark">
         {{ template "view" . }}
         <!-- This is embedded in the binary and enables live to work -->
         <script type="text/javascript" src="/live.js"></script>
