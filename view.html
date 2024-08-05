@@ -17,6 +17,7 @@
     .gamepad button {
         margin: 0.25rem;
     }
+
 </style>
 
 <div class="gamepad">
@@ -33,9 +34,8 @@
         </button>
 
         <button class="btn btn-primary" live-mousedown="look-right" live-mouseup="look-right-stop" live-key="."
-        live-window-keydown="look-right" live-window-keyup="look-right-stop"
-            onmousedown="mouseDown = true" onmouseup="mouseDown = false"
-            onmouseleave="if (mouseDown) this.dispatchEvent(new Event('mouseup'))">
+            live-window-keydown="look-right" live-window-keyup="look-right-stop" onmousedown="mouseDown = true"
+            onmouseup="mouseDown = false" onmouseleave="if (mouseDown) this.dispatchEvent(new Event('mouseup'))">
             Look Right
         </button>
     </div>
@@ -69,16 +69,16 @@
     </div>
 
     <div class="chat-input">
-        <form id="chatinput" live-submit="send" live-hook="chat" class="form-inline">
-            <div class="form-group mb-2">
-                <input autocomplete="off" autofocus type="text" name="message" maxlength="143" class="form-control mr-2"
-                    placeholder="Type your message..." oninput="updateCounter(this)" onfocus="ignoreKeypresses()" onblur="resumeKeypresses()">
-                <small id="charCount" class="form-text text-muted">0/143</small>
+        <form id="chatinput" live-submit="send" live-hook="chat" class="form-inline d-flex align-items-center">
+            <div class="form-group mb-2 d-flex align-items-center">
+                <input autocomplete="off" autofocus type="text" name="message" maxlength="143" class="form-control me-2"
+                    placeholder="Type your message..." oninput="updateCounter(this)" onfocus="ignoreKeypresses()"
+                    onblur="resumeKeypresses()">
+                <small id="charCount" class="form-text text-muted ms-2">0/143</small>
             </div>
-            <button type="submit" class="btn btn-success mb-2">Send</button>
+            <button type="submit" class="btn btn-success mb-2 ms-2">Send</button>
         </form>
     </div>
-</div>
 
 <script>
     let mouseDown = false;
@@ -88,7 +88,6 @@
         const currentLength = input.value.length;
         document.getElementById('charCount').innerText = `${currentLength}/${maxLength}`;
     }
-
 
     function ignoreKeypresses() {
         window.addEventListener('keydown', stopPropagation, true);
