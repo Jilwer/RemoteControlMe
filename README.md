@@ -18,7 +18,7 @@ go build
 
 
 ## Usage
-1. Update and config.example.toml file to your liking
+1. To configure, either modify config.example.toml to your preferences and rename it to config.toml, or run the program once to generate a default configuration file which you can then adjust as needed before restarting the application.
 2. Run your compiled binary `Ex: RemoteControlMe.exe`
 3. Your remote is now hosted locally!
 
