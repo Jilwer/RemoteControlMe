@@ -3,8 +3,9 @@ A WIP web app to allow users to remote control you on VRChat
 
 ## Screenshot
 This does not portray a finished application
-![Screenshot 2024-08-05 231139](https://github.com/user-attachments/assets/252b6a84-a03a-4c73-a5f3-b8c4c690ec91)
 
+
+<img src="https://github.com/user-attachments/assets/252b6a84-a03a-4c73-a5f3-b8c4c690ec91" width="50%" alt="Screenshot">
 
 ## Requirements
 - [Go](https://go.dev/doc/install)
