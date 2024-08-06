@@ -1,7 +1,15 @@
-# Requirements
+# RemoteControlMe
+A WIP web app to allow users to remote control you on VRChat
+
+## Screenshot
+This does not portray a finished application
+![Screenshot 2024-08-05 231139](https://github.com/user-attachments/assets/252b6a84-a03a-4c73-a5f3-b8c4c690ec91)
+
+
+## Requirements
 - [Go](https://go.dev/doc/install)
 
-# How to build
+## How to build
 ```bash 
 git clone https://github.com/Jilwer/RemoteControlMe
 cd ./RemoteControlMe
@@ -9,7 +17,7 @@ go build
 ```
 
 
-# Usage
+## Usage
 1. Update and config.example.toml file to your liking
 2. Run your compiled binary `Ex: RemoteControlMe.exe`
 3. Your remote is now hosted locally!
@@ -20,8 +28,6 @@ go build
    - To link it to your own domain follow this guide: [Configure Tunnels](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/remote-management/)
 
 
-
-
-Example use of https://github.com/Jilwer/VRChatOscInput
-
-Powered by: https://github.com/jfyne/live
+## Powered By
+- https://github.com/jfyne/live
+- https://github.com/Jilwer/VRChatOscInput
