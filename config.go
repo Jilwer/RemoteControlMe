@@ -25,6 +25,7 @@ func LoadConfig(path string) (*UserDefinedConfig, error) {
 		cfg := UserDefinedConfig{
 			Port:          "8080",
 			StaticMessage: "Hello, World!",
+			SendStaticMessage: true,
 			ChatEnabled:   true,
 		}
 
@@ -57,9 +58,10 @@ func MustLoadConfig(path string) *UserDefinedConfig {
 }
 
 type UserDefinedConfig struct {
-	Port          string `toml:"port"`
-	StaticMessage string `toml:"static_message"`
-	ChatEnabled   bool   `toml:"chat_enabled"`
+	Port              string `toml:"port"`
+	StaticMessage     string `toml:"static_message"`
+	SendStaticMessage bool   `toml:"send_static_message"`
+	ChatEnabled       bool   `toml:"chat_enabled"`
 }
 
 type StaticMessage struct {

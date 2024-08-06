@@ -76,7 +76,8 @@ func initializeOscClient() vrcinput.Client {
 func initializeStaticMessageSender(osc *vrcinput.Client, config *StateConfig) {
 	go func() {
 		for range config.StaticMessage.Timer.C {
-			if config.StaticMessage.Send {
+			// Send the message if the timer is up and the user has enabled it
+			if config.StaticMessage.Send && config.UserDefined.SendStaticMessage {
 				osc.Chat(config.UserDefined.StaticMessage, true, false)
 			}
 		}
