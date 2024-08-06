@@ -32,27 +32,21 @@ const (
 
 func main() {
 
-	initialState := StateConfig{
-		StaticMessage: &StaticMessage{
-			Send:  true,
-			Timer: time.NewTicker(10 * time.Second),
-		},
-		ChatEvent: &ChatEvent{
-			LastMessageTime: time.Now().Add(-10 * time.Second), // Set to 10 seconds ago to allow first message
-			RateLimit:       1 * time.Second,
-			Mutex:           &sync.Mutex{},
-		},
-		UserDefined: MustLoadConfig("config.toml"),
-	}
+	// Set up the initial state
+	initialState := MustLoadConfig("config.toml")
+	initialState.StaticMessage.Timer = time.NewTicker(10 * time.Second)
+	initialState.Chat.LastMessageTime = time.Now().Add(-10 * time.Second)
+	initialState.Chat.RateLimit = 1 * time.Second
+	initialState.Chat.Mutex = &sync.Mutex{}
 
 	osc := initializeOscClient()
 	t := initializeTemplates()
-	h := initializeHandlers(&osc, t, &initialState)
-	initializeStaticMessageSender(&osc, &initialState)
+	h := initializeHandlers(&osc, t, initialState)
+	initializeStaticMessageSender(&osc, initialState)
 
-	go runServer(h, &initialState)
+	go runServer(h, initialState)
 
-	fmt.Println("Server is running on http://localhost:" + initialState.UserDefined.Port)
+	fmt.Println("Server is running on http://localhost:" + initialState.Server.Port)
 	select {}
 }
 
@@ -60,7 +54,7 @@ func runServer(h live.Handler, config *StateConfig) {
 	http.Handle("/", live.NewHttpHandler(live.NewCookieStore("session-name", []byte("weak-secret")), h))
 	http.Handle("/live.js", live.Javascript{})
 	http.Handle("/auto.js.map", live.JavascriptMap{})
-	err := http.ListenAndServe(":"+config.UserDefined.Port, nil)
+	err := http.ListenAndServe(":"+config.Server.Port, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -77,8 +71,8 @@ func initializeStaticMessageSender(osc *vrcinput.Client, config *StateConfig) {
 	go func() {
 		for range config.StaticMessage.Timer.C {
 			// Send the message if the timer is up and the user has enabled it
-			if config.StaticMessage.Send && config.UserDefined.SendStaticMessage {
-				osc.Chat(config.UserDefined.StaticMessage, true, false)
+			if config.StaticMessage.Send {
+				osc.Chat(config.StaticMessage.Message, true, false)
 			}
 		}
 	}()
@@ -160,7 +154,7 @@ func initializeHandlers(osc *vrcinput.Client, t *template.Template, state *State
 
 func handleChatEvent(osc *vrcinput.Client, p live.Params, config *StateConfig) (interface{}, error) {
 
-	if !config.UserDefined.ChatEnabled {
+	if !config.Chat.Enabled {
 		return 1, nil
 	}
 
@@ -173,10 +167,10 @@ func handleChatEvent(osc *vrcinput.Client, p live.Params, config *StateConfig) (
 		msg = msg[:143]
 	}
 
-	config.ChatEvent.Mutex.Lock()
-	defer config.ChatEvent.Mutex.Unlock()
+	config.Chat.Mutex.Lock()
+	defer config.Chat.Mutex.Unlock()
 
-	if time.Since(config.ChatEvent.LastMessageTime) < config.ChatEvent.RateLimit {
+	if time.Since(config.Chat.LastMessageTime) < config.Chat.RateLimit {
 		log.Println("Chat rate limit exceeded")
 		return nil, fmt.Errorf("rate limit exceeded")
 	}
@@ -185,7 +179,7 @@ func handleChatEvent(osc *vrcinput.Client, p live.Params, config *StateConfig) (
 
 	config.StaticMessage.Timer.Reset(10 * time.Second)
 
-	config.ChatEvent.LastMessageTime = time.Now()
+	config.Chat.LastMessageTime = time.Now()
 	return 1, nil
 }
 

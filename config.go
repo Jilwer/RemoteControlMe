@@ -10,7 +10,7 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
-func LoadConfig(path string) (*UserDefinedConfig, error) {
+func LoadConfig(path string) (*StateConfig, error) {
 
 	// check if the file exists, if it doesn't create a new one and exit with a message
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -21,12 +21,17 @@ func LoadConfig(path string) (*UserDefinedConfig, error) {
 		}
 		defer file.Close()
 
-		// create a new config with default values
-		cfg := UserDefinedConfig{
-			Port:          "8080",
-			StaticMessage: "Hello, World!",
-			SendStaticMessage: true,
-			ChatEnabled:   true,
+		cfg := StateConfig{
+			StaticMessage: &StaticMessage{
+				Send:    true,
+				Message: "Hello, World!",
+			},
+			Chat: &Chat{
+				Enabled: true,
+			},
+			Server: &Server{
+				Port: "8080",
+			},
 		}
 
 		// encode the config to the file
@@ -42,14 +47,14 @@ func LoadConfig(path string) (*UserDefinedConfig, error) {
 		return nil, fmt.Errorf("failed to open config: %w", err)
 	}
 
-	var cfg UserDefinedConfig
+	var cfg StateConfig
 	if err = toml.NewDecoder(file).Decode(&cfg); err != nil {
 		return nil, err
 	}
 	return &cfg, nil
 }
 
-func MustLoadConfig(path string) *UserDefinedConfig {
+func MustLoadConfig(path string) *StateConfig {
 	cfg, err := LoadConfig(path)
 	if err != nil {
 		log.Fatal(err)
@@ -57,26 +62,25 @@ func MustLoadConfig(path string) *UserDefinedConfig {
 	return cfg
 }
 
-type UserDefinedConfig struct {
-	Port              string `toml:"port"`
-	StaticMessage     string `toml:"static_message"`
-	SendStaticMessage bool   `toml:"send_static_message"`
-	ChatEnabled       bool   `toml:"chat_enabled"`
-}
-
 type StaticMessage struct {
-	Send  bool
-	Timer *time.Ticker
+	Send    bool         `toml:"send"`
+	Timer   *time.Ticker `toml:"-"`
+	Message string       `toml:"message"`
 }
 
-type ChatEvent struct {
-	LastMessageTime time.Time
-	RateLimit       time.Duration
-	Mutex           *sync.Mutex
+type Server struct {
+	Port string `toml:"port"`
+}
+
+type Chat struct {
+	LastMessageTime time.Time     `toml:"-"`
+	RateLimit       time.Duration `toml:"-"`
+	Mutex           *sync.Mutex   `toml:"-"`
+	Enabled         bool          `toml:"enabled"`
 }
 
 type StateConfig struct {
-	StaticMessage *StaticMessage
-	ChatEvent     *ChatEvent
-	UserDefined   *UserDefinedConfig
+	StaticMessage *StaticMessage `toml:"static_message"`
+	Chat          *Chat          `toml:"chat"`
+	Server        *Server        `toml:"server"`
 }
