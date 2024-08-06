@@ -16,7 +16,7 @@ go build
 
 4. I suggest using [Cloudflare tunnels](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) to get online publicly
    - Install from the above link
-   - For a quick tunnel with an ephemeral domain just run `cloudflared tunnel --url localhost:8080`
+   - For a quick tunnel with an ephemeral domain run `cloudflared tunnel --url localhost:8080`
    - To link it to your own domain follow this guide: [Configure Tunnels](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/remote-management/)
 
 
