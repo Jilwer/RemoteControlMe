@@ -1,6 +1,8 @@
 {{ define "title" }}Gamepad{{ end }}
 {{ define "view" }}
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
     .gamepad {
         display: flex;
         flex-direction: column;
@@ -18,10 +20,50 @@
         margin: 0.25rem;
     }
 
+    .navbar-round {
+        font-family: 'Roboto', sans-serif;
+        border-radius: 10px;
+    }
+
+    .navbar-royal-purple .navbar-brand,
+    .navbar-royal-purple .nav-link,
+    .navbar-royal-purple .navbar-toggler-icon {
+        color: white;
+    }
+
+    .navbar-royal-purple .nav-link:hover {
+        color: #ddd;
+    }
+
+    .nav-note {
+        margin-left: auto;
+        color: black;
+        font-weight: bold;
+    }
 </style>
 
+<nav class="navbar navbar-expand-lg bg-primary navbar-round">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">RemoteControlMe</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <li class="nav-item nav-note">
+                    <span class="navbar-text">Made with ❤️ by jilwer</span>
+                </li>
+
+            </ul>
+            <a href="https://github.com/Jilwer/RemoteControlMe" target="_blank" class="btn btn-dark ms-2">GitHub</a>
+        </div>
+    </div>
+</nav>
+<br>
 <div class="gamepad">
-    <h1 class="text-center">Remote Control Me</h1>
+    <h1 class="text-center">Gamepad</h1>
     <div class="gamepad-row">
         <button class="btn btn-primary" live-mousedown="look-left" live-mouseup="look-left-stop" live-key="q"
             live-window-keydown="look-left" live-window-keyup="look-left-stop" onmousedown="mouseDown = true"
@@ -41,9 +83,9 @@
     </div>
 
     <div class="gamepad-row">
-        <button class="btn btn-primary" live-mousedown="up" live-mouseup="up-stop" live-key="w"
-            live-window-keydown="up" live-window-keyup="up-stop" onmousedown="mouseDown = true"
-            onmouseup="mouseDown = false" onmouseleave="if (mouseDown) this.dispatchEvent(new Event('mouseup'))">
+        <button class="btn btn-primary" live-mousedown="up" live-mouseup="up-stop" live-key="w" live-window-keydown="up"
+            live-window-keyup="up-stop" onmousedown="mouseDown = true" onmouseup="mouseDown = false"
+            onmouseleave="if (mouseDown) this.dispatchEvent(new Event('mouseup'))">
             Up
         </button>
     </div>
@@ -79,6 +121,22 @@
             <button type="submit" class="btn btn-success mb-2 ms-2">Send</button>
         </form>
     </div>
+    <br>
+    <div class="keybinds card" style="width: 25rem;">
+        <h2 style="margin-bottom: 0.5rem;">Keybinds</h2>
+        <ul>
+            <li>Jump: <kbd>Space</kbd></li>
+            <li>Look Left: <kbd>Q</kbd></li>
+            <li>Look Right: <kbd>E</kbd></li>
+            <li>Move Up: <kbd>W</kbd></li>
+            <li>Move Left: <kbd>A</kbd></li>
+            <li>Move Down: <kbd>S</kbd></li>
+            <li>Move Right: <kbd>D</kbd></li>
+        </ul>
+    </div>
+</div>
+
+
 
 <script>
     let mouseDown = false;
